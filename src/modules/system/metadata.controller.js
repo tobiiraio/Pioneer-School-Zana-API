@@ -1,4 +1,4 @@
-const Metadata = require("../../models/metadata.model");
+const Metadata = require("./models/metadata.model");
 
 async function createMetadata(req, res, next) {
   try {

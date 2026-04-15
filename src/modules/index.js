@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 
+// Routers are required directly (not via module index) to avoid circular deps.
+// Module index files export models only — for cross-module imports.
 router.use("/", require("./auth/auth.routes"));
 router.use("/", require("./academics/academics.routes"));
 router.use("/", require("./people/people.routes"));

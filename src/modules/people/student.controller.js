@@ -1,6 +1,6 @@
-const Student = require("../../models/student.model");
-const Parent = require("../../models/parent.model");
-const User = require("../../models/user.model");
+const Student = require("./models/student.model");
+const Parent = require("./models/parent.model");
+const { User } = require("../auth");
 const emailService = require("../../notifications/email.service");
 
 async function createStudent(req, res, next) {

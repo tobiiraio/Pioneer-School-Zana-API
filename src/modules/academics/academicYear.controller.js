@@ -1,4 +1,4 @@
-const AcademicYear = require("../../models/academicYear.model");
+const AcademicYear = require("./models/academicYear.model");
 
 async function createAcademicYear(req, res, next) {
   try {

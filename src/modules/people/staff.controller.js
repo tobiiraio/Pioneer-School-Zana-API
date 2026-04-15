@@ -1,5 +1,5 @@
-const Staff = require("../../models/staff.model");
-const User = require("../../models/user.model");
+const Staff = require("./models/staff.model");
+const { User } = require("../auth");
 const emailService = require("../../notifications/email.service");
 
 async function createStaff(req, res, next) {

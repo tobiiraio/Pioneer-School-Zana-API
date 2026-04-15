@@ -1,6 +1,6 @@
-const RequirementFulfillment = require("../../models/requirementFulfillment.model");
-const RequirementSet = require("../../models/requirementSet.model");
-const Student = require("../../models/student.model");
+const RequirementFulfillment = require("./models/requirementFulfillment.model");
+const RequirementSet = require("./models/requirementSet.model");
+const { Student } = require("../people");
 
 async function createRequirementFulfillment(req, res, next) {
   try {

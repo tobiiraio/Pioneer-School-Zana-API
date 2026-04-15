@@ -1,5 +1,5 @@
-const User = require("../../models/user.model");
-const RefreshToken = require("../../models/refreshToken.model");
+const User = require("./models/user.model");
+const RefreshToken = require("./models/refreshToken.model");
 
 exports.getUsers = async (req, res, next) => {
   try {

@@ -1,6 +1,6 @@
-const Mark = require("../../models/mark.model");
-const Assessment = require("../../models/assessment.model");
-const Staff = require("../../models/staff.model");
+const Mark = require("./models/mark.model");
+const Assessment = require("./models/assessment.model");
+const { Staff } = require("../people");
 
 const verifyTeacherAccess = async (userId, subrole, assessment) => {
   if (subrole === "admin") return true;

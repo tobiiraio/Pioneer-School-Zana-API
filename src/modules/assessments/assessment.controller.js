@@ -1,5 +1,5 @@
-const Assessment = require("../../models/assessment.model");
-const Staff = require("../../models/staff.model");
+const Assessment = require("./models/assessment.model");
+const { Staff } = require("../people");
 
 exports.createAssessment = async (req, res, next) => {
   try {

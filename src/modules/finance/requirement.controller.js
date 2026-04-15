@@ -1,4 +1,4 @@
-const Requirement = require("../../models/requirement.model");
+const Requirement = require("./models/requirement.model");
 
 async function createRequirement(req, res, next) {
   try {

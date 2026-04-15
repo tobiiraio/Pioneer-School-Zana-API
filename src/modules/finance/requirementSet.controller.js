@@ -1,7 +1,6 @@
-const RequirementSet = require("../../models/requirementSet.model");
-const Requirement = require("../../models/requirement.model");
-const SchoolClass = require("../../models/class.model");
-const AcademicTerm = require("../../models/academicTerm.model");
+const RequirementSet = require("./models/requirementSet.model");
+const Requirement = require("./models/requirement.model");
+const { SchoolClass, AcademicTerm } = require("../academics");
 
 async function createRequirementSet(req, res, next) {
   try {

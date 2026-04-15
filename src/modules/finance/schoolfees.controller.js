@@ -1,7 +1,6 @@
-const SchoolFees = require("../../models/schoolfees.model");
-const Student = require("../../models/student.model");
-const AcademicTerm = require("../../models/academicTerm.model");
-const SchoolClass = require("../../models/class.model");
+const SchoolFees = require("./models/schoolfees.model");
+const { Student } = require("../people");
+const { AcademicTerm, SchoolClass } = require("../academics");
 
 async function createSchoolFees(req, res, next) {
   try {

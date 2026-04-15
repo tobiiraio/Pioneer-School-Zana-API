@@ -1,4 +1,4 @@
-const AcademicTerm = require("../../models/academicTerm.model");
+const AcademicTerm = require("./models/academicTerm.model");
 
 async function createAcademicTerm(req, res, next) {
   try {

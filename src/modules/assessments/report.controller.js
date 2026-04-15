@@ -1,8 +1,7 @@
-const Mark = require("../../models/mark.model");
-const Assessment = require("../../models/assessment.model");
-const Student = require("../../models/student.model");
-const Metadata = require("../../models/metadata.model");
-const Staff = require("../../models/staff.model");
+const Mark = require("./models/mark.model");
+const Assessment = require("./models/assessment.model");
+const { Student, Staff } = require("../people");
+const { Metadata } = require("../system");
 
 const buildStudentReport = (student, assessments, marks, position, totalStudents) => {
   const subjectMap = {};
