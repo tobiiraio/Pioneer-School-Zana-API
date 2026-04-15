@@ -1,5 +1,2 @@
-// Public API for cross-module model imports — no router here to avoid circular deps
-module.exports = {
-  Assessment: require("./models/assessment.model"),
-  Mark: require("./models/mark.model"),
-};
+// Public API — models only (no router to avoid circular deps)
+module.exports = require("./models/index");

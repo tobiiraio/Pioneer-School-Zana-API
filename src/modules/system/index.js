@@ -1,4 +1,2 @@
-// Public API for cross-module model imports — no router here to avoid circular deps
-module.exports = {
-  Metadata: require("./models/metadata.model"),
-};
+// Public API — models only (no router to avoid circular deps)
+module.exports = require("./models/index");

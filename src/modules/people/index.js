@@ -1,6 +1,2 @@
-// Public API for cross-module model imports — no router here to avoid circular deps
-module.exports = {
-  Student: require("./models/student.model"),
-  Staff: require("./models/staff.model"),
-  Parent: require("./models/parent.model"),
-};
+// Public API — models only (no router to avoid circular deps)
+module.exports = require("./models/index");

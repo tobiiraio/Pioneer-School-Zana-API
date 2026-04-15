@@ -1,14 +1,14 @@
 const express = require("express");
 const router = express.Router();
 
-// Routers are required directly (not via module index) to avoid circular deps.
+// Routers required directly (not via module index) to avoid circular deps.
 // Module index files export models only — for cross-module imports.
-router.use("/", require("./auth/auth.routes"));
-router.use("/", require("./academics/academics.routes"));
-router.use("/", require("./people/people.routes"));
-router.use("/", require("./assessments/assessments.routes"));
-router.use("/", require("./finance/finance.routes"));
-router.use("/", require("./system/system.routes"));
+router.use("/", require("./auth/routes/auth.routes"));
+router.use("/", require("./academics/routes/academics.routes"));
+router.use("/", require("./people/routes/people.routes"));
+router.use("/", require("./assessments/routes/assessments.routes"));
+router.use("/", require("./finance/routes/finance.routes"));
+router.use("/", require("./system/routes/system.routes"));
 
 router.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
