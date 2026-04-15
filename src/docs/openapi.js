@@ -43,6 +43,9 @@ Passwordless OTP-based authentication. All protected endpoints require a Bearer 
     { name: 'Requirement Fulfillments', description: 'Student requirement fulfillment tracking' },
     { name: 'School Fees', description: 'Fee transactions and balance management' },
     { name: 'Metadata', description: 'School information and settings' },
+    { name: 'Assessments', description: 'Assessment definitions (BOT/MID/EOT exams, tests, assignments) — admin creates, teachers view their own' },
+    { name: 'Marks', description: 'Student scores per assessment — teachers enter for their class/subject, classteacher views all' },
+    { name: 'Reports', description: 'Academic report cards — per student or full class, scoped by term. Header includes school metadata.' },
   ],
   components: {
     securitySchemes: {
@@ -490,6 +493,128 @@ Passwordless OTP-based authentication. All protected endpoints require a Bearer 
       ErrorResponse: {
         type: 'object',
         properties: { message: { type: 'string' }, error: { type: 'string' } }
+      },
+
+      // ── Assessments ───────────────────────────────────────────
+      CreateAssessment: {
+        type: 'object',
+        required: ['title', 'category', 'type', 'academicYear', 'academicTerm', 'class', 'subject', 'maxScore'],
+        properties: {
+          title: { type: 'string', example: 'End of Term 1 Mathematics Exam' },
+          category: { type: 'string', enum: ['BOT', 'MID', 'EOT', 'other'], description: 'Beginning of Term, Mid Term, End of Term, or custom' },
+          type: { type: 'string', enum: ['exam', 'test', 'assignment', 'quiz', 'practical'] },
+          academicYear: { type: 'string', description: 'AcademicYear ObjectId' },
+          academicTerm: { type: 'string', description: 'AcademicTerm ObjectId' },
+          class: { type: 'string', description: 'SchoolClass ObjectId' },
+          subject: { type: 'string', description: 'Subject ObjectId' },
+          maxScore: { type: 'number', example: 100 },
+          date: { type: 'string', format: 'date', example: '2024-03-15' }
+        }
+      },
+      Assessment: {
+        type: 'object',
+        properties: {
+          _id: { type: 'string' },
+          title: { type: 'string' },
+          category: { type: 'string', enum: ['BOT', 'MID', 'EOT', 'other'] },
+          type: { type: 'string' },
+          academicYear: { type: 'object' },
+          academicTerm: { type: 'object' },
+          class: { type: 'object' },
+          subject: { type: 'object' },
+          maxScore: { type: 'number' },
+          date: { type: 'string', format: 'date' },
+          createdBy: { type: 'object' },
+          createdAt: { type: 'string', format: 'date-time' }
+        }
+      },
+
+      // ── Marks ─────────────────────────────────────────────────
+      CreateMark: {
+        type: 'object',
+        required: ['assessment', 'student', 'score'],
+        properties: {
+          assessment: { type: 'string', description: 'Assessment ObjectId' },
+          student: { type: 'string', description: 'Student ObjectId' },
+          score: { type: 'number', example: 78, description: 'Must not exceed assessment maxScore' },
+          remarks: { type: 'string', example: 'Good effort, needs to work on algebra' }
+        }
+      },
+      BulkCreateMarks: {
+        type: 'object',
+        required: ['assessmentId', 'marks'],
+        properties: {
+          assessmentId: { type: 'string', description: 'Assessment ObjectId' },
+          marks: {
+            type: 'array',
+            items: {
+              type: 'object',
+              required: ['student', 'score'],
+              properties: {
+                student: { type: 'string', description: 'Student ObjectId' },
+                score: { type: 'number' },
+                remarks: { type: 'string' }
+              }
+            }
+          }
+        }
+      },
+      Mark: {
+        type: 'object',
+        properties: {
+          _id: { type: 'string' },
+          assessment: { type: 'object' },
+          student: { type: 'object' },
+          score: { type: 'number' },
+          remarks: { type: 'string' },
+          gradedBy: { type: 'object' },
+          createdAt: { type: 'string', format: 'date-time' }
+        }
+      },
+
+      // ── Reports ───────────────────────────────────────────────
+      ReportSubjectRow: {
+        type: 'object',
+        properties: {
+          subject: { type: 'string', example: 'Mathematics' },
+          scores: {
+            type: 'object',
+            description: 'Keyed by assessment category (BOT, MID, EOT)',
+            additionalProperties: {
+              type: 'object',
+              properties: {
+                assessmentId: { type: 'string' },
+                title: { type: 'string' },
+                maxScore: { type: 'number' },
+                score: { type: 'number', nullable: true },
+                remarks: { type: 'string', nullable: true }
+              }
+            }
+          }
+        }
+      },
+      StudentReport: {
+        type: 'object',
+        properties: {
+          school: { type: 'object', description: 'School metadata (name, logo, location, etc.)' },
+          term: { type: 'object' },
+          academicYear: { type: 'object' },
+          student: { type: 'object', properties: { id: { type: 'string' }, fullName: { type: 'string' }, class: { type: 'object' } } },
+          subjects: { type: 'array', items: { '$ref': '#/components/schemas/ReportSubjectRow' } },
+          position: { type: 'integer', nullable: true, description: 'Class position based on total score across all assessments' },
+          totalStudents: { type: 'integer' }
+        }
+      },
+      ClassReport: {
+        type: 'object',
+        properties: {
+          school: { type: 'object' },
+          term: { type: 'object' },
+          academicYear: { type: 'object' },
+          class: { type: 'object' },
+          totalStudents: { type: 'integer' },
+          reports: { type: 'array', items: { '$ref': '#/components/schemas/StudentReport' }, description: 'Sorted by position ascending' }
+        }
       }
     }
   },
@@ -1261,6 +1386,167 @@ Passwordless OTP-based authentication. All protected endpoints require a Bearer 
         tags: ['Metadata'], summary: 'Delete metadata (admin only)',
         parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
         responses: { 200: { description: 'Deleted' }, 403: { description: 'Forbidden' } }
+      }
+    }
+  ,
+
+    // ── Assessments ───────────────────────────────────────────────────────────
+    '/assessments': {
+      post: {
+        tags: ['Assessments'], summary: 'Create assessment (admin only)',
+        description: 'Defines an assessment for a specific class, subject and term. One assessment per category+class+subject+term.',
+        requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/CreateAssessment' } } } },
+        responses: {
+          201: { description: 'Assessment created', content: { 'application/json': { schema: { $ref: '#/components/schemas/Assessment' } } } },
+          400: { description: 'Duplicate assessment or validation error' },
+          403: { description: 'Forbidden — admin only' }
+        }
+      },
+      get: {
+        tags: ['Assessments'], summary: 'List assessments (admin + teacher + classteacher)',
+        description: 'Teachers see only assessments for their assigned classes and subjects. Classteachers see all subjects in their class.',
+        parameters: [
+          { name: 'termId', in: 'query', schema: { type: 'string' }, description: 'Filter by academic term' },
+          { name: 'classId', in: 'query', schema: { type: 'string' }, description: 'Filter by class' },
+          { name: 'subjectId', in: 'query', schema: { type: 'string' }, description: 'Filter by subject' }
+        ],
+        responses: {
+          200: { description: 'List of assessments', content: { 'application/json': { schema: { type: 'array', items: { $ref: '#/components/schemas/Assessment' } } } } },
+          403: { description: 'Forbidden' }
+        }
+      }
+    },
+    '/assessments/class/{classId}': {
+      get: {
+        tags: ['Assessments'], summary: 'Get assessments by class (admin + teacher + classteacher)',
+        parameters: [
+          { name: 'classId', in: 'path', required: true, schema: { type: 'string' } },
+          { name: 'termId', in: 'query', schema: { type: 'string' } }
+        ],
+        responses: { 200: { description: 'Assessments for class' }, 403: { description: 'Forbidden' } }
+      }
+    },
+    '/assessments/term/{termId}': {
+      get: {
+        tags: ['Assessments'], summary: 'Get assessments by term (admin + teacher + classteacher)',
+        parameters: [
+          { name: 'termId', in: 'path', required: true, schema: { type: 'string' } },
+          { name: 'classId', in: 'query', schema: { type: 'string' } }
+        ],
+        responses: { 200: { description: 'Assessments for term' }, 403: { description: 'Forbidden' } }
+      }
+    },
+    '/assessments/{id}': {
+      get: {
+        tags: ['Assessments'], summary: 'Get assessment by ID (admin + teacher + classteacher)',
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        responses: { 200: { description: 'Assessment', content: { 'application/json': { schema: { $ref: '#/components/schemas/Assessment' } } } }, 404: { description: 'Not found' } }
+      },
+      put: {
+        tags: ['Assessments'], summary: 'Update assessment (admin only)',
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/CreateAssessment' } } } },
+        responses: { 200: { description: 'Updated assessment' }, 403: { description: 'Forbidden' }, 404: { description: 'Not found' } }
+      },
+      delete: {
+        tags: ['Assessments'], summary: 'Delete assessment (admin only)',
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        responses: { 200: { description: 'Deleted' }, 403: { description: 'Forbidden' } }
+      }
+    },
+
+    // ── Marks ─────────────────────────────────────────────────────────────────
+    '/marks': {
+      post: {
+        tags: ['Marks'], summary: 'Submit a single mark (admin + teacher + classteacher)',
+        description: 'Teacher must be assigned to the assessment\'s class AND subject. Classteacher must be assigned to the class.',
+        requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/CreateMark' } } } },
+        responses: {
+          201: { description: 'Mark saved', content: { 'application/json': { schema: { $ref: '#/components/schemas/Mark' } } } },
+          400: { description: 'Score exceeds maxScore or duplicate mark' },
+          403: { description: 'Not assigned to this class/subject' }
+        }
+      }
+    },
+    '/marks/bulk': {
+      post: {
+        tags: ['Marks'], summary: 'Bulk submit marks for an assessment (admin + teacher + classteacher)',
+        description: 'Submit marks for multiple students at once. Upserts — existing marks are updated. Same access rules as single mark entry.',
+        requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/BulkCreateMarks' } } } },
+        responses: {
+          201: { description: 'Bulk result', content: { 'application/json': { schema: { type: 'object', properties: { message: { type: 'string' }, saved: { type: 'integer' }, failed: { type: 'integer' } } } } } },
+          403: { description: 'Not assigned to this class/subject' }
+        }
+      }
+    },
+    '/marks/assessment/{assessmentId}': {
+      get: {
+        tags: ['Marks'], summary: 'Get marks for an assessment (admin + teacher + classteacher)',
+        description: 'Returns all student scores for the given assessment. Teachers can only view assessments they are assigned to.',
+        parameters: [{ name: 'assessmentId', in: 'path', required: true, schema: { type: 'string' } }],
+        responses: {
+          200: { description: 'List of marks', content: { 'application/json': { schema: { type: 'array', items: { $ref: '#/components/schemas/Mark' } } } } },
+          403: { description: 'Forbidden' }, 404: { description: 'Assessment not found' }
+        }
+      }
+    },
+    '/marks/student/{studentId}': {
+      get: {
+        tags: ['Marks'], summary: 'Get all marks for a student (admin + classteacher)',
+        parameters: [
+          { name: 'studentId', in: 'path', required: true, schema: { type: 'string' } },
+          { name: 'termId', in: 'query', schema: { type: 'string' }, description: 'Filter by academic term' }
+        ],
+        responses: {
+          200: { description: 'Student marks grouped by assessment/subject' },
+          403: { description: 'Forbidden' }
+        }
+      }
+    },
+    '/marks/{id}': {
+      put: {
+        tags: ['Marks'], summary: 'Update a mark (admin + teacher who entered it)',
+        description: 'Teachers can only edit marks they personally entered.',
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        requestBody: { required: true, content: { 'application/json': { schema: { type: 'object', properties: { score: { type: 'number' }, remarks: { type: 'string' } } } } } },
+        responses: { 200: { description: 'Updated mark' }, 403: { description: 'Can only edit your own marks' }, 404: { description: 'Not found' } }
+      },
+      delete: {
+        tags: ['Marks'], summary: 'Delete a mark (admin only)',
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        responses: { 200: { description: 'Mark deleted' }, 403: { description: 'Forbidden' } }
+      }
+    },
+
+    // ── Reports ───────────────────────────────────────────────────────────────
+    '/reports/student/{studentId}/term/{termId}': {
+      get: {
+        tags: ['Reports'], summary: 'Get report card for a single student (admin + classteacher)',
+        description: 'Returns a grid of scores per subject per assessment category (BOT/MID/EOT). Header includes school metadata. Position calculated against classmates.',
+        parameters: [
+          { name: 'studentId', in: 'path', required: true, schema: { type: 'string' } },
+          { name: 'termId', in: 'path', required: true, schema: { type: 'string' } }
+        ],
+        responses: {
+          200: { description: 'Student report card', content: { 'application/json': { schema: { $ref: '#/components/schemas/StudentReport' } } } },
+          403: { description: 'Forbidden' },
+          404: { description: 'No assessments found for this class and term' }
+        }
+      }
+    },
+    '/reports/class/{classId}/term/{termId}': {
+      get: {
+        tags: ['Reports'], summary: 'Get report cards for entire class (admin + classteacher)',
+        description: 'Returns report cards for all active students in the class, sorted by position. Classteacher must be assigned to the class.',
+        parameters: [
+          { name: 'classId', in: 'path', required: true, schema: { type: 'string' } },
+          { name: 'termId', in: 'path', required: true, schema: { type: 'string' } }
+        ],
+        responses: {
+          200: { description: 'Class report cards', content: { 'application/json': { schema: { $ref: '#/components/schemas/ClassReport' } } } },
+          403: { description: 'Forbidden — classteacher not assigned to this class' },
+          404: { description: 'No assessments or no active students found' }
+        }
       }
     }
   }

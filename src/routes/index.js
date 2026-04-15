@@ -14,6 +14,9 @@ const parentRoutes = require("./parent.route");
 const staffRoutes = require("./staff.route");
 const requirementFulfillmentRoutes = require("./requirementFulfillment.route");
 const schoolFeesRoutes = require("./schoolfees.route");
+const assessmentRoutes = require("./assessment.route");
+const markRoutes = require("./mark.route");
+const reportRoutes = require("./report.route");
 const router = express.Router();
 
 // Register all routes
@@ -32,6 +35,9 @@ router.use("/parents", parentRoutes);
 router.use("/staff", staffRoutes);
 router.use("/requirement-fulfillments", requirementFulfillmentRoutes);
 router.use("/school-fees", schoolFeesRoutes);
+router.use("/assessments", assessmentRoutes);
+router.use("/marks", markRoutes);
+router.use("/reports", reportRoutes);
 
 // Catch-all route for undefined paths
 router.use((req, res) => {
