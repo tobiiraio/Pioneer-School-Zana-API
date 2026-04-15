@@ -35,17 +35,21 @@ connectDB();
 app.get("/pjsa/openapi.json", (req, res) => res.json(openapiSpec));
 app.use("/pjsa/docs", swaggerUi.serve, swaggerUi.setup(openapiSpec));
 
-// Routes
-const routes = require("./routes/index");
-app.use("/pjsa", routes);
+// Routes — modular architecture
+const modules = require("./modules/index");
+app.use("/pjsa", modules);
 
 // Default Route
 app.get("/", (req, res) => {
   res.send("Welcome to PKPA API 1.0");
 });
 
+// Central error handler (must be last)
+const errorHandler = require("./middlewares/error.middleware");
+app.use(errorHandler);
+
 // Start Server
 const PORT = process.env.PORT || 7143;
 app.listen(PORT, () =>
-  console.log(`🚀 Server running on port ${PORT}`)
+  console.log(`Server running on port ${PORT}`)
 );
