@@ -1,6 +1,6 @@
 const Parent = require("../models/parent.model");
 const { User } = require("../../auth");
-const emailService = require("../../../notifications/email.service");
+const emailService = require("../../../shared/notifications");
 
 async function createParent(req, res, next) {
   try {

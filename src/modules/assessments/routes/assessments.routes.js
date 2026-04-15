@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { authenticate, authorizeRole } = require("../../../middlewares/auth.middleware");
+const { authenticate, authorizeRole } = require("../../../shared/middlewares/auth.middleware");
 
 const {
   createAssessment, getAssessments, getAssessmentById, getAssessmentsByClass,

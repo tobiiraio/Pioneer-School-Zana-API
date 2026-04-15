@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { User } = require("../modules/auth");
+const { User } = require("../../modules/auth");
 require("dotenv").config();
 
 exports.authenticate = async (req, res, next) => {
@@ -42,7 +42,7 @@ exports.authorizeClassAccess = async (req, res, next) => {
   if (!classId) return res.status(400).json({ message: "classId is required" });
 
   try {
-    const { Staff } = require("../modules/people");
+    const { Staff } = require("../../modules/people");
     const staff = await Staff.findOne({ user: userId });
     if (!staff) return res.status(403).json({ message: "Staff record not found" });
 

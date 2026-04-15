@@ -45,7 +45,7 @@ app.get("/", (req, res) => {
 });
 
 // Central error handler (must be last)
-const errorHandler = require("./middlewares/error.middleware");
+const errorHandler = require("./shared/middlewares/error.middleware");
 app.use(errorHandler);
 
 // Start Server

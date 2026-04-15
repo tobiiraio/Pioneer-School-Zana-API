@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { authenticate, authorizeRole } = require("../../../middlewares/auth.middleware");
+const { authenticate, authorizeRole } = require("../../../shared/middlewares/auth.middleware");
 const { createMetadata, getAllMetadata, getMetadataById, updateMetadata, deleteMetadata } = require("../controllers/metadata.controller");
 
 router.post("/metadata", authenticate, authorizeRole(["admin"]), createMetadata);

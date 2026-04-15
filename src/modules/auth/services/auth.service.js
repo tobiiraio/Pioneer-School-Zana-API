@@ -3,7 +3,7 @@ const Otp = require("../models/otp.model");
 const RefreshToken = require("../models/refreshToken.model");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
-const emailService = require("../../../notifications/email.service");
+const emailService = require("../../../shared/notifications");
 require("dotenv").config();
 
 const OTP_TTL_MINUTES = parseInt(process.env.OTP_TTL_MINUTES || "10", 10);

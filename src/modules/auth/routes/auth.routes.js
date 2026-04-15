@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const authCtrl = require("../controllers/auth.controller");
 const userCtrl = require("../controllers/user.controller");
-const { authenticate, authorizeRole } = require("../../../middlewares/auth.middleware");
+const { authenticate, authorizeRole } = require("../../../shared/middlewares/auth.middleware");
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 router.post("/auth/register", authenticate, authorizeRole(["admin"]), authCtrl.register);

@@ -1,7 +1,7 @@
 const Student = require("../models/student.model");
 const Parent = require("../models/parent.model");
 const { User } = require("../../auth");
-const emailService = require("../../../notifications/email.service");
+const emailService = require("../../../shared/notifications");
 
 async function createStudent(req, res, next) {
   try {
