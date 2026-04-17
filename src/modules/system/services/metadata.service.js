@@ -1,4 +1,5 @@
 const Metadata = require("../models/metadata.model");
+const { uploadService } = require("../../../shared/upload");
 
 const err = (msg, status) => Object.assign(new Error(msg), { status });
 
@@ -35,6 +36,19 @@ exports.setActive = async (id) => {
   metadata.is_active = true;
   await metadata.save();
   return metadata;
+};
+
+exports.uploadLogo = async (id, file) => {
+  const metadata = await Metadata.findById(id);
+  if (!metadata) throw err("Metadata not found", 404);
+  const { url } = await uploadService.uploadFile(file, {
+    folder: "school/logo",
+    publicId: `school_logo_${id}`,
+    resourceType: "image",
+  });
+  metadata.logo_url = url;
+  await metadata.save();
+  return { logo_url: metadata.logo_url };
 };
 
 exports.remove = async (id) => {

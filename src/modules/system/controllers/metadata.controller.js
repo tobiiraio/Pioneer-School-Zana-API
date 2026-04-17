@@ -25,6 +25,14 @@ async function getActiveMetadata(req, res, next) {
   catch (err) { next(err); }
 }
 
+async function uploadMetadataLogo(req, res, next) {
+  try {
+    if (!req.file) return res.status(400).json({ message: "No file uploaded" });
+    res.json({ message: "Logo uploaded successfully", data: await service.uploadLogo(req.params.id, req.file) });
+  }
+  catch (err) { next(err); }
+}
+
 async function setActiveMetadata(req, res, next) {
   try { res.json({ message: "Metadata activated", data: await service.setActive(req.params.id) }); }
   catch (err) { next(err); }
@@ -35,4 +43,4 @@ async function deleteMetadata(req, res, next) {
   catch (err) { next(err); }
 }
 
-module.exports = { createMetadata, getAllMetadata, getActiveMetadata, getMetadataById, updateMetadata, setActiveMetadata, deleteMetadata };
+module.exports = { createMetadata, getAllMetadata, getActiveMetadata, getMetadataById, updateMetadata, setActiveMetadata, uploadMetadataLogo, deleteMetadata };

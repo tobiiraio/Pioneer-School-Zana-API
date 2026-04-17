@@ -1,11 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const { authenticate, authorizeRole } = require("../../../shared/middlewares/auth.middleware");
+const { upload } = require("../../../shared/upload");
 
 const {
   createStudent, getAllStudents, getStudentById, updateStudent, deleteStudent,
   addParentToStudent, removeParentFromStudent, getStudentsByClass, getStudentsByStatus,
-  updatePrimaryContact, createStudentWithAccount,
+  updatePrimaryContact, createStudentWithAccount, uploadStudentPhoto,
 } = require("../controllers/student.controller");
 
 const {
@@ -13,14 +14,17 @@ const {
   getStaffByDepartment, getStaffByStatus, setStaffStatus,
   addSubjectToTeacher, removeSubjectFromTeacher, addClassToTeacher, removeClassFromTeacher,
   createStaffWithAccount, getTeachersBySubject, getTeachersByClass,
+  uploadStaffPhoto, uploadStaffIdDocument,
 } = require("../controllers/staff.controller");
 
 const {
   createParent, getAllParents, getParentById, updateParent, deleteParent,
   addStudentToParent, removeStudentFromParent, getParentsByStudentId, createParentWithAccount,
+  uploadParentPhoto, uploadParentIdDocument,
 } = require("../controllers/parent.controller");
 
 // ── Students ───────────────────────────────────────────────────────────────────
+router.patch("/students/:id/photo", authenticate, authorizeRole(["admin"]), upload.single("photo"), uploadStudentPhoto);
 router.post("/students", authenticate, authorizeRole(["admin"]), createStudent);
 router.put("/students/:id", authenticate, authorizeRole(["admin"]), updateStudent);
 router.delete("/students/:id", authenticate, authorizeRole(["admin"]), deleteStudent);
@@ -35,6 +39,8 @@ router.get("/students/class/:classId", authenticate, authorizeRole(["admin", "te
 router.get("/students/:id", authenticate, authorizeRole(["admin", "bursar", "classteacher"]), getStudentById);
 
 // ── Staff ──────────────────────────────────────────────────────────────────────
+router.patch("/staff/:id/photo", authenticate, authorizeRole(["admin"]), upload.single("photo"), uploadStaffPhoto);
+router.patch("/staff/:id/id-document", authenticate, authorizeRole(["admin"]), upload.single("document"), uploadStaffIdDocument);
 router.post("/staff", authenticate, authorizeRole(["admin"]), createStaff);
 router.put("/staff/:id", authenticate, authorizeRole(["admin"]), updateStaff);
 router.delete("/staff/:id", authenticate, authorizeRole(["admin"]), deleteStaff);
@@ -53,6 +59,8 @@ router.get("/staff/class/:classId", authenticate, authorizeRole(["admin"]), getT
 router.get("/staff/:id", authenticate, authorizeRole(["admin", "teacher", "classteacher", "bursar", "non-teaching"]), getStaffById);
 
 // ── Parents ────────────────────────────────────────────────────────────────────
+router.patch("/parents/:id/photo", authenticate, authorizeRole(["admin"]), upload.single("photo"), uploadParentPhoto);
+router.patch("/parents/:id/id-document", authenticate, authorizeRole(["admin"]), upload.single("document"), uploadParentIdDocument);
 router.post("/parents", authenticate, authorizeRole(["admin"]), createParent);
 router.put("/parents/:id", authenticate, authorizeRole(["admin"]), updateParent);
 router.delete("/parents/:id", authenticate, authorizeRole(["admin"]), deleteParent);

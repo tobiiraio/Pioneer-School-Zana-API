@@ -1,6 +1,7 @@
 const Staff = require("../models/staff.model");
 const { User } = require("../../auth");
 const emailService = require("../../../shared/notifications");
+const { uploadService } = require("../../../shared/upload");
 
 const err = (msg, status) => Object.assign(new Error(msg), { status });
 const dupEmailErr = () => err("Staff with this email already exists", 409);
@@ -99,6 +100,33 @@ exports.setStatus = async (id, { employmentStatus, isActive }) => {
   if (staff.user) await User.findByIdAndUpdate(staff.user, { isActive: staff.isActive });
   await staff.save();
   return staff;
+};
+
+exports.uploadPhoto = async (id, file) => {
+  const staff = await Staff.findById(id);
+  if (!staff) throw err("Staff not found", 404);
+  const { url } = await uploadService.uploadFile(file, {
+    folder: "staff/photos",
+    publicId: `staff_photo_${id}`,
+    resourceType: "image",
+  });
+  staff.photo = url;
+  await staff.save();
+  return { photo: staff.photo };
+};
+
+exports.uploadIdDocument = async (id, file) => {
+  const staff = await Staff.findById(id);
+  if (!staff) throw err("Staff not found", 404);
+  const isImage = file.mimetype.startsWith("image/");
+  const { url } = await uploadService.uploadFile(file, {
+    folder: "staff/id-documents",
+    publicId: `staff_id_${id}`,
+    resourceType: isImage ? "image" : "raw",
+  });
+  staff.idDocument = url;
+  await staff.save();
+  return { idDocument: staff.idDocument };
 };
 
 exports.createWithAccount = async ({ staffData, userData }) => {

@@ -1,6 +1,7 @@
 const Parent = require("../models/parent.model");
 const { User } = require("../../auth");
 const emailService = require("../../../shared/notifications");
+const { uploadService } = require("../../../shared/upload");
 
 const err = (msg, status) => Object.assign(new Error(msg), { status });
 
@@ -49,6 +50,33 @@ exports.removeStudent = async (parentId, studentId) => {
 };
 
 exports.getByStudent = async (studentId) => Parent.find({ students: studentId });
+
+exports.uploadPhoto = async (id, file) => {
+  const parent = await Parent.findById(id);
+  if (!parent) throw err("Parent not found", 404);
+  const { url } = await uploadService.uploadFile(file, {
+    folder: "parents/photos",
+    publicId: `parent_photo_${id}`,
+    resourceType: "image",
+  });
+  parent.photo = url;
+  await parent.save();
+  return { photo: parent.photo };
+};
+
+exports.uploadIdDocument = async (id, file) => {
+  const parent = await Parent.findById(id);
+  if (!parent) throw err("Parent not found", 404);
+  const isImage = file.mimetype.startsWith("image/");
+  const { url } = await uploadService.uploadFile(file, {
+    folder: "parents/id-documents",
+    publicId: `parent_id_${id}`,
+    resourceType: isImage ? "image" : "raw",
+  });
+  parent.idDocument = url;
+  await parent.save();
+  return { idDocument: parent.idDocument };
+};
 
 exports.createWithAccount = async ({ parentData, userData }) => {
   const parent = new Parent(parentData);

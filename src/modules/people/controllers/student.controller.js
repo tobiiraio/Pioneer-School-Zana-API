@@ -55,8 +55,16 @@ async function createStudentWithAccount(req, res, next) {
   catch (err) { next(err); }
 }
 
+async function uploadStudentPhoto(req, res, next) {
+  try {
+    if (!req.file) return res.status(400).json({ message: "No file uploaded" });
+    res.json({ message: "Photo uploaded successfully", data: await service.uploadPhoto(req.params.id, req.file) });
+  }
+  catch (err) { next(err); }
+}
+
 module.exports = {
   createStudent, getAllStudents, getStudentById, updateStudent, deleteStudent,
   addParentToStudent, removeParentFromStudent, getStudentsByClass, getStudentsByStatus,
-  updatePrimaryContact, createStudentWithAccount,
+  updatePrimaryContact, createStudentWithAccount, uploadStudentPhoto,
 };

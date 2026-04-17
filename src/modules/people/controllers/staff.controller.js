@@ -75,9 +75,26 @@ async function getTeachersByClass(req, res, next) {
   catch (err) { next(err); }
 }
 
+async function uploadStaffPhoto(req, res, next) {
+  try {
+    if (!req.file) return res.status(400).json({ message: "No file uploaded" });
+    res.json({ message: "Photo uploaded successfully", data: await service.uploadPhoto(req.params.id, req.file) });
+  }
+  catch (err) { next(err); }
+}
+
+async function uploadStaffIdDocument(req, res, next) {
+  try {
+    if (!req.file) return res.status(400).json({ message: "No file uploaded" });
+    res.json({ message: "ID document uploaded successfully", data: await service.uploadIdDocument(req.params.id, req.file) });
+  }
+  catch (err) { next(err); }
+}
+
 module.exports = {
   createStaff, getAllStaff, getStaffById, updateStaff, deleteStaff,
   getStaffByDepartment, getStaffByStatus, setStaffStatus,
   addSubjectToTeacher, removeSubjectFromTeacher, addClassToTeacher, removeClassFromTeacher,
   createStaffWithAccount, getTeachersBySubject, getTeachersByClass,
+  uploadStaffPhoto, uploadStaffIdDocument,
 };

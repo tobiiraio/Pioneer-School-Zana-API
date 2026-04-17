@@ -2,6 +2,7 @@ const Student = require("../models/student.model");
 const Parent = require("../models/parent.model");
 const { User } = require("../../auth");
 const emailService = require("../../../shared/notifications");
+const { uploadService } = require("../../../shared/upload");
 
 const err = (msg, status) => Object.assign(new Error(msg), { status });
 
@@ -78,6 +79,19 @@ exports.updatePrimaryContact = async ({ studentId, parentId }) => {
   student.parents.forEach((p) => { p.isPrimaryContact = p.parent.toString() === parentId; });
   await student.save();
   return student;
+};
+
+exports.uploadPhoto = async (id, file) => {
+  const student = await Student.findById(id);
+  if (!student) throw err("Student not found", 404);
+  const { url } = await uploadService.uploadFile(file, {
+    folder: "students/photos",
+    publicId: `student_photo_${id}`,
+    resourceType: "image",
+  });
+  student.photo = url;
+  await student.save();
+  return { photo: student.photo };
 };
 
 exports.createWithAccount = async ({ studentData, userData }) => {

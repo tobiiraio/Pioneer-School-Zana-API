@@ -45,7 +45,24 @@ async function createParentWithAccount(req, res, next) {
   catch (err) { next(err); }
 }
 
+async function uploadParentPhoto(req, res, next) {
+  try {
+    if (!req.file) return res.status(400).json({ message: "No file uploaded" });
+    res.json({ message: "Photo uploaded successfully", data: await service.uploadPhoto(req.params.id, req.file) });
+  }
+  catch (err) { next(err); }
+}
+
+async function uploadParentIdDocument(req, res, next) {
+  try {
+    if (!req.file) return res.status(400).json({ message: "No file uploaded" });
+    res.json({ message: "ID document uploaded successfully", data: await service.uploadIdDocument(req.params.id, req.file) });
+  }
+  catch (err) { next(err); }
+}
+
 module.exports = {
   createParent, getAllParents, getParentById, updateParent, deleteParent,
   addStudentToParent, removeStudentFromParent, getParentsByStudentId, createParentWithAccount,
+  uploadParentPhoto, uploadParentIdDocument,
 };
