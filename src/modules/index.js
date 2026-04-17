@@ -10,6 +10,12 @@ router.use("/", require("./assessments/routes/assessments.routes"));
 router.use("/", require("./finance/routes/finance.routes"));
 router.use("/", require("./system/routes/system.routes"));
 
+// Public verification routes — no auth, rate-limited, read-only
+router.use("/", require("./people/routes/public.routes"));
+router.use("/", require("./finance/routes/public.routes"));
+router.use("/", require("./assessments/routes/public.routes"));
+router.use("/", require("./academics/routes/public.routes"));
+
 router.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
 });
