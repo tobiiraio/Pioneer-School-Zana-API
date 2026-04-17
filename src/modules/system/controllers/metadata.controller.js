@@ -20,9 +20,19 @@ async function updateMetadata(req, res, next) {
   catch (err) { next(err); }
 }
 
+async function getActiveMetadata(req, res, next) {
+  try { res.json(await service.getActive()); }
+  catch (err) { next(err); }
+}
+
+async function setActiveMetadata(req, res, next) {
+  try { res.json({ message: "Metadata activated", data: await service.setActive(req.params.id) }); }
+  catch (err) { next(err); }
+}
+
 async function deleteMetadata(req, res, next) {
   try { await service.remove(req.params.id); res.json({ message: "Metadata deleted successfully" }); }
   catch (err) { next(err); }
 }
 
-module.exports = { createMetadata, getAllMetadata, getMetadataById, updateMetadata, deleteMetadata };
+module.exports = { createMetadata, getAllMetadata, getActiveMetadata, getMetadataById, updateMetadata, setActiveMetadata, deleteMetadata };
