@@ -8,6 +8,7 @@ const metadataSchema = new mongoose.Schema({
   phone: String,
   website: String,
   logo_url: String,
+  is_active: { type: Boolean, default: false },
   created_at: { type: Date, default: Date.now },
 });
 
