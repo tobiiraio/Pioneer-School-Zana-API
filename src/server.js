@@ -12,7 +12,9 @@ app.use(express.json());
 // ✅ CORS Configuration
 const allowedOrigins = [
   "http://localhost:3000",            // Local dev
-  "https://pjsa-ui.vercel.app"        // Production frontend (Vercel)
+  "https://pjsa-ui.vercel.app",        // Production frontend (Vercel)
+  "https://portal.pioneerschoolzana.com"
+
 ];
 
 app.use(
